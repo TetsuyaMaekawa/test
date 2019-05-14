@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
@@ -53,7 +55,7 @@ func main() {
 			if event.Type == linebot.EventTypeMessage {
 				switch message := event.Message.(type) {
 				case *linebot.TextMessage:
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(getMessage(message))).Do(); err != nil {
 						log.Print(err)
 					}
 				}
@@ -62,4 +64,18 @@ func main() {
 	})
 
 	router.Run(":" + port)
+}
+
+func getMessage(message *linebot.TextMessage) (rtnMessage string) {
+	resMessage := [3]string{"ありがとう", "どういたしまして", "おやすみなさい"}
+
+	// 乱数生成
+	rand.Seed(time.Now().UnixNano())
+	for {
+		if math := rand.Intn(3); math != 0 {
+			rtnMessage = resMessage[math]
+			break
+		}
+	}
+	return
 }
