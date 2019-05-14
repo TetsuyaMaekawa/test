@@ -72,7 +72,7 @@ func getMessage(message *linebot.TextMessage) (rtnMessage string) {
 	// 乱数生成
 	rand.Seed(time.Now().UnixNano())
 	for {
-		if math := rand.Intn(3); math != 0 {
+		if math := rand.Intn(3); math != 3 {
 			rtnMessage = resMessage[math]
 			break
 		}
