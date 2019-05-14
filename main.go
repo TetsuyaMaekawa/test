@@ -53,9 +53,14 @@ func main() {
 		}
 		for _, event := range events {
 			if event.Type == linebot.EventTypeMessage {
+				respMessage = array(
+					image,
+					"https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg",
+					"https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg",
+				)
 				switch message := event.Message.(type) {
 				case *linebot.TextMessage:
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(getMessage(message))).Do(); err != nil {
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(respMessage)).Do(); err != nil {
 						log.Print(err)
 					}
 				}
@@ -66,16 +71,16 @@ func main() {
 	router.Run(":" + port)
 }
 
-func getMessage(message *linebot.TextMessage) (rtnMessage string) {
-	resMessage := [3]string{"ありがとう", "どういたしまして", "おやすみなさい"}
+// func getMessage(message *linebot.TextMessage) (rtnMessage string) {
+// 	resMessage := [3]string{"ありがとう", "どういたしまして", "おやすみなさい"}
 
-	// 乱数生成
-	rand.Seed(time.Now().UnixNano())
-	for {
-		if math := rand.Intn(3); math != 3 {
-			rtnMessage = resMessage[math]
-			break
-		}
-	}
-	return
+// 	// 乱数生成
+// 	rand.Seed(time.Now().UnixNano())
+// 	for {
+// 		if math := rand.Intn(3); math != 3 {
+// 			rtnMessage = resMessage[math]
+// 			break
+// 		}
+// 	}
+// 	return
 }
