@@ -2,10 +2,8 @@ package main
 
 import (
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
@@ -53,17 +51,12 @@ func main() {
 		}
 		for _, event := range events {
 			if event.Type == linebot.EventTypeMessage {
-				respMessage = array(
-					image,
-					"https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg",
-					"https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg",
-				)
-				switch message := event.Message.(type) {
-				case *linebot.TextMessage:
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(respMessage)).Do(); err != nil {
-						log.Print(err)
-					}
+				// switch message := event.Message.(type) {
+				// case *linebot.TextMessage:
+				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewImageMessage("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg", "https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")).Do(); err != nil {
+					log.Print(err)
 				}
+				// }
 			}
 		}
 	})
@@ -83,4 +76,16 @@ func main() {
 // 		}
 // 	}
 // 	return
-}
+// }
+
+// func getImage() linebot.NewImageMessage {
+
+// 	file, err := os.Open("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")
+// 	if err != nil {
+// 		log.Print(err)
+// 	}
+
+// 	jpegImg := linebot.NewImageMessage("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg", "https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")
+
+// 	return jpgImg
+// }
