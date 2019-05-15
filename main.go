@@ -50,14 +50,29 @@ func main() {
 			return
 		}
 		for _, event := range events {
-			if event.Type == linebot.EventTypeMessage {
-				// switch message := event.Message.(type) {
-				// case *linebot.TextMessage:
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewImageMessage("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg", "https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")).Do(); err != nil {
+			// if event.Type == linebot.EventTypeMessage {
+
+			// 友達追加された時の振る舞い
+			if event.Type == linebot.EventTypeFollow {
+				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("初めまして。よろしくお願いします。")).Do(); err != nil {
 					log.Print(err)
 				}
-				// }
 			}
+
+			// メッセージが送信されてきた時の振る舞い
+			if event.Type == linebot.EventTypeMessage {
+				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("そうですね。")).Do(); err != nil {
+					log.Print(err)
+				}
+			}
+
+			// switch event.Message.(type) {
+			// case *linebot.TextMessage:
+			// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewImageMessage("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg", "https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")).Do(); err != nil {
+			// 		log.Print(err)
+			// 	}
+			// }
+			// }
 		}
 	})
 
@@ -76,16 +91,4 @@ func main() {
 // 		}
 // 	}
 // 	return
-// }
-
-// func getImage() linebot.NewImageMessage {
-
-// 	file, err := os.Open("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")
-// 	if err != nil {
-// 		log.Print(err)
-// 	}
-
-// 	jpegImg := linebot.NewImageMessage("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg", "https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")
-
-// 	return jpgImg
 // }
