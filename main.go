@@ -66,8 +66,10 @@ func main() {
 					if err != nil {
 						log.Print(err)
 					}
+					// 構造体に値をセット
+					profileStruct := personalInfo{profile.DisplayName, profile.UserID}
 					// 情報と入力された場合に自己情報を返す
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザ名は："+profile.DisplayName+"\n"+"あなたのユーザーIDは："+userID)).Do(); err != nil {
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザ名は："+profileStruct.name+"\n"+"あなたのユーザーIDは："+profileStruct.id)).Do(); err != nil {
 						log.Print(err)
 					}
 				} else {
@@ -81,4 +83,10 @@ func main() {
 	})
 
 	router.Run(":" + port)
+}
+
+// 自己情報を保持する構造体
+type personalInfo struct {
+	name string
+	id   string
 }
