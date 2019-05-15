@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -63,13 +62,16 @@ func main() {
 				// if getResMessage(message.Text) == "情報" {
 				if message.Text == "情報" {
 					userID := event.Source.UserID
-					resp, _ := http.Get("https://api.line.me/v2/bot/profile/" + userID)
-					defer resp.Body.Close()
-					var profile profile
-					if err := json.NewDecoder(resp.Body).Decode(&profile); err != nil {
-						log.Print(err)
-					}
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザーIDは："+userID+"\n"+"あなたのユーザ名は："+profile.displayName)).Do(); err != nil {
+					// resp, _ := http.Get("https://api.line.me/v2/bot/profile/" + userID)
+					// defer resp.Body.Close()
+					// var profile profile
+					// if err := json.NewDecoder(resp.Body).D\ecode(&profile); err != nil {
+					// log.Print(err)
+					// }
+					res, _ := bot.GetProfile(userID).Do()
+					userName := res.DisplayName
+
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザーIDは："+userID+"\n"+"あなたのユーザ名は："+userName)).Do(); err != nil {
 						log.Print(err)
 					}
 				}
@@ -88,9 +90,9 @@ func main() {
 }
 
 // JSONデコード用構造体
-type profile struct {
-	displayName   string `json:"displayname"`
-	userId        string `json:"userid"`
-	pictureUrl    string `json:"pictureUrl"`
-	statusMessage string `json:"statusMessage"`
-}
+// type profile struct {
+// 	displayName   string `json:"displayname"`
+// 	userId        string `json:"userid"`
+// 	pictureUrl    string `json:"pictureUrl"`
+// 	statusMessage string `json:"statusMessage"`
+// }
