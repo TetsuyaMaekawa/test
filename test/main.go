@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	personal "github.com/heroku/go-getting-started/testPersonalInfo"
 	_ "github.com/heroku/x/hmetrics/onload"
 
 	// SDK追加
@@ -66,6 +67,7 @@ func main() {
 					if err != nil {
 						log.Print(err)
 					}
+					var personalInfo personal.Info
 					// 構造体に値をセット
 					profileStruct := personalInfo{profile.DisplayName, profile.UserID}
 					// 情報と入力された場合に自己情報を返す
@@ -83,10 +85,4 @@ func main() {
 	})
 
 	router.Run(":" + port)
-}
-
-// 自己情報を保持する構造体
-type personalInfo struct {
-	name string
-	id   string
 }
