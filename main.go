@@ -56,43 +56,29 @@ func main() {
 					log.Print(err)
 				}
 			}
-
+			// メッセージを受けた場合のふるまい
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				// if getResMessage(message.Text) == "情報" {
 				if message.Text == "情報" {
 					userID := event.Source.UserID
-					// resp, _ := http.Get("https://api.line.me/v2/bot/profile/" + userID)
-					// defer resp.Body.Close()
-					// var profile profile
-					// if err := json.NewDecoder(resp.Body).D\ecode(&profile); err != nil {
-					// log.Print(err)
-					// }
-					res, _ := bot.GetProfile(userID).Do()
-					userName := res.DisplayName
-
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザーIDは："+userID+"\n"+"あなたのユーザ名は："+userName)).Do(); err != nil {
+					// ユーザーIDからプロフィールを取得
+					profile, _ := bot.GetProfile(userID).Do()
+					if err != nil {
+						log.Print(err)
+					}
+					// 情報と入力された場合に自己情報を返す
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザ名は："+profile.DisplayName+"\n"+"あなたのユーザーIDは："+userID)).Do(); err != nil {
+						log.Print(err)
+					}
+				} else {
+					// その他のメッセージを受けた場合はhelpを返す
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("プロフィール情報が見たい場合は「情報」と入力してください。")).Do(); err != nil {
 						log.Print(err)
 					}
 				}
 			}
-
-			// // メッセージが送信されてきた時の振る舞い
-			// if event.Type == linebot.EventTypeMessage {
-			// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("そうですね。")).Do(); err != nil {
-			// 		log.Print(err)
-			// 	}
-			// }
 		}
 	})
 
 	router.Run(":" + port)
 }
-
-// JSONデコード用構造体
-// type profile struct {
-// 	displayName   string `json:"displayname"`
-// 	userId        string `json:"userid"`
-// 	pictureUrl    string `json:"pictureUrl"`
-// 	statusMessage string `json:"statusMessage"`
-// }
