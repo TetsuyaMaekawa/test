@@ -50,8 +50,6 @@ func main() {
 			return
 		}
 		for _, event := range events {
-			// if event.Type == linebot.EventTypeMessage {
-
 			// 友達追加された時の振る舞い
 			if event.Type == linebot.EventTypeFollow {
 				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("初めまして。よろしくお願いします。")).Do(); err != nil {
@@ -59,36 +57,30 @@ func main() {
 				}
 			}
 
-			// メッセージが送信されてきた時の振る舞い
-			if event.Type == linebot.EventTypeMessage {
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("そうですね。")).Do(); err != nil {
-					log.Print(err)
+			switch message := event.Message.(type) {
+			case *linebot.TextMessage:
+ 				if  getResMessage(message.Text) == "情報" {
+					userId := event.Source.UserID
+					userName := bot.GetProfile(userId)
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザーIDは：" + userId + "\n" + "あなたのユーザ名は：" + userName)).Do(); err != nil {
+						log.Print(err)
+					l
+					}
 				}
 			}
 
-			// switch event.Message.(type) {
-			// case *linebot.TextMessage:
-			// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewImageMessage("https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg", "https://tenshoku.mynavi.jp/sites/all/knowhow/heroes_file/img/top167_19.jpg")).Do(); err != nil {
+
+
+			// // メッセージが送信されてきた時の振る舞い
+			// if event.Type == linebot.EventTypeMessage {
+			// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("そうですね。")).Do(); err != nil {
 			// 		log.Print(err)
-			// 	}
-			// }
-			// }
+				}
+			}
 		}
 	})
 
 	router.Run(":" + port)
 }
 
-// func getMessage(message *linebot.TextMessage) (rtnMessage string) {
-// 	resMessage := [3]string{"ありがとう", "どういたしまして", "おやすみなさい"}
 
-// 	// 乱数生成
-// 	rand.Seed(time.Now().UnixNano())
-// 	for {
-// 		if math := rand.Intn(3); math != 3 {
-// 			rtnMessage = resMessage[math]
-// 			break
-// 		}
-// 	}
-// 	return
-// }
