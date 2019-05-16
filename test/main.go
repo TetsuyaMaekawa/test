@@ -58,6 +58,7 @@ func main() {
 			}
 			// メッセージを受けた場合のふるまい
 			switch message := event.Message.(type) {
+
 			case *linebot.TextMessage:
 
 				// mapに値を格納
