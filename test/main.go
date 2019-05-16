@@ -59,33 +59,37 @@ func main() {
 			// メッセージを受けた場合のふるまい
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				if message.Text == "情報" {
-					userID := event.Source.UserID
-					// ユーザーIDからプロフィールを取得
-					profile, _ := bot.GetProfile(userID).Do()
-					if err != nil {
-						log.Print(err)
-					}
-					// 構造体に値をセット
-					profileStruct := info{profile.DisplayName, profile.UserID}
-					// 情報と入力された場合に自己情報を返す
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザ名は："+profileStruct.name+"\n"+"あなたのユーザーIDは："+profileStruct.id)).Do(); err != nil {
+
+				// mapに値を格納
+				capitals := setMap()
+				inputCountryName := message.Text
+				// マップに存在するキーであれば値,trueを取得
+				capital, ok := capitals[inputCountryName]
+				if ok {
+					// マップのキーと値を返す
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(inputCountryName+"の首都は、"+capital+"です。")).Do(); err != nil {
 						log.Print(err)
 					}
 				} else {
-					// その他のメッセージを受けた場合はhelpを返す
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("プロフィール情報が見たい場合は「情報」と入力してください。")).Do(); err != nil {
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("お探しの国名と首都はまだ登録されていません。")).Do(); err != nil {
 						log.Print(err)
 					}
+
 				}
+
 			}
 		}
 	})
 
 	router.Run(":" + port)
 }
-
-type info struct {
-	name string
-	id   string
+func setMap() map[string]string {
+	capitals := map[string]string{
+		"日本":   "東京",
+		"アメリカ": "ワシントンDC",
+		"中国":   "北京",
+		"タイ":   "クルンテープ・プラマハーナコーン・アモーンラッタナコーシン・マヒンタラーユッタヤー・マハーディロックポップ・ノッパラット・ラーチャタニーブリーロム・ウドムラーチャニウェートマハーサターン・アモーンピマーン・アワターンサティット・サッカタッティヤウィサヌカムプラシット",
+		"韓国":   "ソウル",
+	}
+	return capitals
 }
