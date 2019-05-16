@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	personal "github.com/heroku/go-getting-started/testPersonalInfo"
 	_ "github.com/heroku/x/hmetrics/onload"
 
 	// SDK追加
@@ -67,9 +66,8 @@ func main() {
 					if err != nil {
 						log.Print(err)
 					}
-					var personalInfo personal.Info
 					// 構造体に値をセット
-					profileStruct := personalInfo{profile.DisplayName, profile.UserID}
+					profileStruct := info{profile.DisplayName, profile.UserID}
 					// 情報と入力された場合に自己情報を返す
 					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザ名は："+profileStruct.name+"\n"+"あなたのユーザーIDは："+profileStruct.id)).Do(); err != nil {
 						log.Print(err)
@@ -85,4 +83,9 @@ func main() {
 	})
 
 	router.Run(":" + port)
+}
+
+type info struct {
+	name string
+	id   string
 }
