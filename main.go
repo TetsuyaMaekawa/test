@@ -16,14 +16,17 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 
+	port = "80"
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
 
 	// LINE bot instanceの作成
 	bot, err := linebot.New(
-		os.Getenv("CHANNEL_SECRET"),
-		os.Getenv("CHANNEL_TOKEN"),
+		"0189c809a76170e6c965b62ac5c9f670",
+		"hJ5OAGDvemzFZidHYjg1Ihr5SoHs9eqsgUuok/LoW4uXzKD3lEZpqyqDMKti8Q/bp0rb4aVW2zsjFroGMoi5xTZqdWVrGy/CQE/EbozdNI3+Fyvq7sd4O/5EHyFpZ9mMwA7snSk+JzX8WJjNyXUJJAdB04t89/1O/w1cDnyilFU=",
+		// os.Getenv("CHANNEL_SECRET"),
+		// os.Getenv("CHANNEL_TOKEN"),
 	)
 
 	if err != nil {

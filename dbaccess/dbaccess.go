@@ -14,7 +14,7 @@ func GormConnect() *gorm.DB {
 	PROTOCOL := "tcp(192.168.9.4:3306)"
 	DBNAME := "mydb"
 
-	CONNECT := USER + ":" + PASS + ":" + "@" + PROTOCOL + "/" + DBNAME
+	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME
 
 	db, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
