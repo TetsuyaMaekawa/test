@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/dbaccess"
 	_ "github.com/heroku/x/hmetrics/onload"
 
 	// SDK追加
@@ -82,15 +83,19 @@ func main() {
 					}
 				// 画像メッセージの場合
 				case *linebot.ImageMessage:
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("画像を受け取りました。")).Do(); err != nil {
+					// dbに接続
+					db := dbaccess.GormConnect()
+					defer db.Close()
+					var r dbaccess.RcvData
+					r.ID = 1
+					db.Find(r.ID)
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(r.Name)).Do(); err != nil {
 						log.Print(err)
 					}
-
 				}
 			}
 		}
 	})
-
 	router.Run(":" + port)
 }
 
