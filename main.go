@@ -6,7 +6,8 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/heroku/go-getting-started/dbaccess"
+	"github.com/heroku/go-getting-started/dbaccess/mysql"
+	"github.com/heroku/go-getting-started/dbaccess/redis"
 	_ "github.com/heroku/x/hmetrics/onload"
 
 	// SDK追加
@@ -60,6 +61,12 @@ func main() {
 					log.Print(err)
 				}
 			}
+			// ポストバックイベントの場合
+			if event.Type == linebot.EventTypePostback {
+				// redisに接続
+				redisConn := redis.RedisConnection()
+				redis.RedisSet("key1", "value1", 30, redisConn)
+			}
 			// メッセージイベントの場合
 			if event.Type == linebot.EventTypeMessage {
 				switch message := event.Message.(type) {
@@ -72,10 +79,8 @@ func main() {
 						if err != nil {
 							log.Print(err)
 						}
-						// 構造体に値をセット
-						profileStruct := info{profile.DisplayName, profile.UserID}
 						// 情報と入力された場合に自己情報を返す
-						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザ名は："+profileStruct.name+"\n"+"あなたのユーザーIDは："+profileStruct.id)).Do(); err != nil {
+						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたのユーザ名は："+profile.DisplayName+"\n"+"あなたのユーザーIDは："+profile.UserID)).Do(); err != nil {
 							log.Print(err)
 						}
 					} else {
@@ -86,13 +91,23 @@ func main() {
 					}
 				// 画像メッセージの場合
 				case *linebot.ImageMessage:
-					// dbに接続
-					db := dbaccess.GormConnect()
+					// dbに接続しIDから情報を抽出
+					db := mysql.GormConnect()
 					defer db.Close()
-					var r dbaccess.RcvData
+					r := mysql.RcvData{}
 					r.ID = 1
-					db.Find(r.ID)
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(r.Name)).Do(); err != nil {
+					db.First(&r, "id=?", "1")
+					// ボタンテンプレート
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(
+						"this is a buttons template",
+						linebot.NewButtonsTemplate(
+							"",
+							r.Name,
+							"messsage text",
+							linebot.NewMessageAction("text", "text"),
+							linebot.NewPostbackAction("postback", "postback", "", ""),
+						),
+					)).Do(); err != nil {
 						log.Print(err)
 					}
 				}
@@ -100,9 +115,4 @@ func main() {
 		}
 	})
 	router.Run(":" + port)
-}
-
-type info struct {
-	name string
-	id   string
 }
