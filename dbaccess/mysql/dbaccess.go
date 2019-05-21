@@ -11,7 +11,7 @@ import (
 func GormConnect() *gorm.DB {
 	DBMS := "mysql"
 	USER := "root"
-	PASS := "Ah4vn3tetsuya"
+	PASS := "pass"
 	PROTOCOL := "tcp(127.0.0.1:3306)"
 	DBNAME := "mydb"
 
@@ -22,6 +22,8 @@ func GormConnect() *gorm.DB {
 		log.Print(err)
 	}
 
+	db.DB().SetMaxIdleConns(3)
+	db.DB().SetMaxOpenConns(3)
 	db.LogMode(true)
 	return db
 }

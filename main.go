@@ -63,9 +63,34 @@ func main() {
 			}
 			// ポストバックイベントの場合
 			if event.Type == linebot.EventTypePostback {
+				// redisのコネクションプール生成
+				redisPool := redis.NewPool()
+				redisKey := "key1"
+				redisValue := "value1"
 				// redisに接続
-				redisConn := redis.RedisConnection()
-				redis.RedisSet("key1", "value1", 30, redisConn)
+				redisConn := redisPool.Get()
+				defer redisPool.Close()
+				redis.RedisSet(redisKey, redisValue, 30, redisConn)
+				// // イメージマップ
+				// ibs := ImagemapBaseSize{1040, 1040}
+				// ia := ImagemapArea{520, 0, 520, 1040}
+				// if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewImagemapMessage("https://rootship.co.jp/images/logo.png",
+				// 	"this is a imagemap",
+				// 	linebot.ImagemapBaseSize(ibs),
+				// 	linebot.NewMessageImagemapAction("test", linebot.ImagemapArea((ia))),
+				// )).Do(); err != nil {
+				// 	log.Print(err)
+				// }
+				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(
+					"this is a buttons template",
+					linebot.NewConfirmTemplate(
+						"key oa value",
+						linebot.NewMessageAction("key", redis.RedisGetKey(redisKey, redisConn)),
+						linebot.NewMessageAction("value", redis.RedisGetValue(redisKey, redisConn)),
+					),
+				)).Do(); err != nil {
+					log.Print(err)
+				}
 			}
 			// メッセージイベントの場合
 			if event.Type == linebot.EventTypeMessage {
@@ -116,3 +141,17 @@ func main() {
 	})
 	router.Run(":" + port)
 }
+
+// // ImagemapBaseSize ...
+// type ImagemapBaseSize struct {
+// 	Width  int "json:\"width\""
+// 	Height int "json:\"height\""
+// }
+
+// // ImagemapArea ...
+// type ImagemapArea struct {
+// 	X      int "json:\"x\""
+// 	Y      int "json:\"y\""
+// 	Width  int "json:\"width\""
+// 	Height int "json:\"height\""
+// }
