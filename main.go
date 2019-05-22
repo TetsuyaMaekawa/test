@@ -43,6 +43,9 @@ func main() {
 		c.HTML(http.StatusOK, "index.tmpl.html", nil)
 	})
 
+	// dbpoolの生成
+	redisPool := redis.NewPool()
+	db := mysql.GormConnect()
 	// Line Messaging API用　Routing設定
 	router.POST("/callback", func(c *gin.Context) {
 
@@ -63,13 +66,11 @@ func main() {
 			}
 			// ポストバックイベントの場合
 			if event.Type == linebot.EventTypePostback {
-				// redisのコネクションプール生成
-				redisPool := redis.NewPool()
+				// redisPool := redis.NewPool()
 				redisKey := "key1"
 				redisValue := "value1"
 				// redisに接続
 				redisConn := redisPool.Get()
-				defer redisPool.Close()
 				redis.RedisSet(redisKey, redisValue, 30, redisConn)
 				// // イメージマップ
 				// ibs := ImagemapBaseSize{1040, 1040}
@@ -116,9 +117,8 @@ func main() {
 					}
 				// 画像メッセージの場合
 				case *linebot.ImageMessage:
-					// dbに接続しIDから情報を抽出
-					db := mysql.GormConnect()
-					defer db.Close()
+					// db := mysql.GormConnect()
+					// dbからデータ取得
 					r := mysql.RcvData{}
 					r.ID = 1
 					db.First(&r, "id=?", "1")
