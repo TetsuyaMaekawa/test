@@ -4,41 +4,54 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/garyburd/redigo/redis"
 	"github.com/heroku/test/action"
-	"github.com/heroku/test/dbaccess/mysql"
+	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
 )
 
-// LinebotHandler LINEからのリクエストを受けて応答をハンドリング
-func LinebotHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+// Linebothandler LINEからのリクエストを受けて応答をハンドリング
+func (in *InitDB) Linebothandler() {
+
 	// client生成
 	bot, err := linebot.New("0189c809a76170e6c965b62ac5c9f670",
 		"hJ5OAGDvemzFZidHYjg1Ihr5SoHs9eqsgUuok/LoW4uXzKD3lEZpqyqDMKti8Q/bp0rb4aVW2zsjFroGMoi5xTZqdWVrGy/CQE/EbozdNI3+Fyvq7sd4O/5EHyFpZ9mMwA7snSk+JzX8WJjNyXUJJAdB04t89/1O/w1cDnyilFU=",
 	)
 	if err != nil {
 		log.Print(err)
+		return
 	}
 
-	// requesut取得
-	events, err := bot.ParseRequest(r)
-	if err != nil {
-		log.Print(err)
-	}
+	i := action.InitLinebot{Bot: bot, DB: in.DB, RD: in.RD}
 
-	db := mysql.OpenMySQL()
+	// // Postのルーティング
+	goji.Post("/callback", func(c web.C, w http.ResponseWriter, r *http.Request) {
 
-	// event毎に処理分岐
-	for _, event := range events {
-		i := action.InitLinebot{Bot: bot, Event: event, DB: db}
-		switch event.Type {
-		case linebot.EventTypeFollow:
-			i.ResFollowEvent()
-		case linebot.EventTypeMessage:
-			i.ResMessageEvent()
-		case linebot.EventTypePostback:
-			i.ResPostBackEvent()
-		default:
+		// requesut取得
+		events, err := bot.ParseRequest(r)
+		if err != nil {
+			log.Print(err)
 		}
-	}
+		// event毎に処理分岐
+		for _, event := range events {
+			switch event.Type {
+			case linebot.EventTypeFollow:
+				i.ResFollowEvent(event)
+			case linebot.EventTypeMessage:
+				i.ResMessageEvent(event)
+			case linebot.EventTypePostback:
+				i.ResPostBackEvent(event)
+			default:
+			}
+		}
+	})
+	goji.Serve()
+}
+
+// InitDB ...
+type InitDB struct {
+	DB *gorm.DB
+	RD *redis.Pool
 }

@@ -3,6 +3,8 @@ package action
 import (
 	"log"
 
+	"github.com/garyburd/redigo/redis"
+	"github.com/heroku/test/dbaccess/myredis"
 	"github.com/heroku/test/dbaccess/mysql"
 
 	"github.com/jinzhu/gorm"
@@ -10,33 +12,37 @@ import (
 )
 
 // ResFollowEvent followEventに対して応答
-func (i *InitLinebot) ResFollowEvent() {
-	if _, err := i.Bot.ReplyMessage(i.Event.ReplyToken, linebot.NewTextMessage("友達追加ありがとうございます。")).Do(); err != nil {
+func (i *InitLinebot) ResFollowEvent(event *linebot.Event) {
+	if _, err := i.Bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("友達追加ありがとうございます。")).Do(); err != nil {
 		log.Print(err)
 	}
 }
 
 // ResMessageEvent messageEventに対して応答
-func (i *InitLinebot) ResMessageEvent() {
-	switch message := i.Event.Message.(type) {
+func (i *InitLinebot) ResMessageEvent(event *linebot.Event) {
+	switch message := event.Message.(type) {
 	case *linebot.TextMessage:
-		i.resTextMessage(message)
+		i.resTextMessage(message, event)
 	case *linebot.ImageMessage:
-		i.resImageMessage()
+		i.resImageMessage(event)
 	}
 }
 
 // ResPostBackEvent postBackEventに対して応答
-func (i *InitLinebot) ResPostBackEvent() {
-	if _, err := i.Bot.ReplyMessage(i.Event.ReplyToken, linebot.NewTemplateMessage(
+func (i *InitLinebot) ResPostBackEvent(event *linebot.Event) {
+
+	key := "key1"
+	myredis.SetKeyValue(key, "value1", i.RD)
+
+	if _, err := i.Bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(
 		"this is a confilm template",
 		linebot.NewConfirmTemplate(
 			"key oa value",
 			linebot.NewMessageAction(
-				"key", "dbから抜き出したkey",
+				"key", myredis.GetKey(key, i.RD),
 			),
 			linebot.NewMessageAction(
-				"key", "dbから抜き出したvalue",
+				"value", myredis.GetValue(key, i.RD),
 			),
 		),
 	)).Do(); err != nil {
@@ -45,25 +51,25 @@ func (i *InitLinebot) ResPostBackEvent() {
 }
 
 // resTextMessage textMessageの時に応答
-func (i *InitLinebot) resTextMessage(message *linebot.TextMessage) {
+func (i *InitLinebot) resTextMessage(message *linebot.TextMessage, event *linebot.Event) {
 	if message.Text == "情報" {
-		userID := i.Event.Source.UserID
+		userID := event.Source.UserID
 		profile, _ := i.Bot.GetProfile(userID).Do()
-		if _, err := i.Bot.ReplyMessage(i.Event.ReplyToken, linebot.NewTextMessage("あなたの名前は「"+profile.DisplayName+"」\n"+"あなたのIDは「"+userID+"」です。")).Do(); err != nil {
+		if _, err := i.Bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("あなたの名前は「"+profile.DisplayName+"」\n"+"あなたのIDは「"+userID+"」です。")).Do(); err != nil {
 			log.Print(err)
 		}
 	} else {
-		if _, err := i.Bot.ReplyMessage(i.Event.ReplyToken, linebot.NewTextMessage("ユーザー情報を取得したい場合は「情報」と入力してください。")).Do(); err != nil {
+		if _, err := i.Bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ユーザー情報を取得したい場合は「情報」と入力してください。")).Do(); err != nil {
 			log.Print(err)
 		}
 	}
 }
 
 // resImageMessage imageMessageの時に応答
-func (i *InitLinebot) resImageMessage() {
+func (i *InitLinebot) resImageMessage(event *linebot.Event) {
 	m := mysql.Mytable{}
 	i.DB.First(&m, "id=?", 1)
-	if _, err := i.Bot.ReplyMessage(i.Event.ReplyToken, linebot.NewTemplateMessage(
+	if _, err := i.Bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(
 		"this is a buttons template",
 		linebot.NewButtonsTemplate(
 			"",
@@ -86,7 +92,7 @@ func (i *InitLinebot) resImageMessage() {
 
 // InitLinebot ClientとEventを保持
 type InitLinebot struct {
-	Bot   *linebot.Client
-	Event *linebot.Event
-	DB    *gorm.DB
+	Bot *linebot.Client
+	DB  *gorm.DB
+	RD  *redis.Pool
 }
