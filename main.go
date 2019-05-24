@@ -66,6 +66,7 @@ func main() {
 			}
 			// ポストバックイベントの場合
 			if event.Type == linebot.EventTypePostback {
+<<<<<<< HEAD
 				// redisPool := redis.NewPool()
 				redisKey := "key1"
 				redisValue := "value1"
@@ -92,6 +93,11 @@ func main() {
 				)).Do(); err != nil {
 					log.Print(err)
 				}
+=======
+				// redisに接続
+				redisConn := redis.RedisConnection()
+				redis.RedisSet("key1", "value1", 30, redisConn)
+>>>>>>> parent of 8b09e7a... pool
 			}
 			// メッセージイベントの場合
 			if event.Type == linebot.EventTypeMessage {
@@ -141,17 +147,3 @@ func main() {
 	})
 	router.Run(":" + port)
 }
-
-// // ImagemapBaseSize ...
-// type ImagemapBaseSize struct {
-// 	Width  int "json:\"width\""
-// 	Height int "json:\"height\""
-// }
-
-// // ImagemapArea ...
-// type ImagemapArea struct {
-// 	X      int "json:\"x\""
-// 	Y      int "json:\"y\""
-// 	Width  int "json:\"width\""
-// 	Height int "json:\"height\""
-// }
