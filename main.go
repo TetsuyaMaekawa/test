@@ -1,38 +1,22 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
-
-	"github.com/gin-gonic/gin"
-	"github.com/heroku/go-getting-started/dbaccess/mysql"
-	"github.com/heroku/go-getting-started/dbaccess/redis"
-	_ "github.com/heroku/x/hmetrics/onload"
-
-	// SDK追加
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/heroku/test/dbaccess/myredis"
+	"github.com/heroku/test/dbaccess/mysql"
+	"github.com/heroku/test/handler"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-
-	port = "80"
-	if port == "" {
-		log.Fatal("$PORT must be set")
-	}
-
-	// LINE bot instanceの作成
-	bot, err := linebot.New(
-		"0189c809a76170e6c965b62ac5c9f670",
-		"hJ5OAGDvemzFZidHYjg1Ihr5SoHs9eqsgUuok/LoW4uXzKD3lEZpqyqDMKti8Q/bp0rb4aVW2zsjFroGMoi5xTZqdWVrGy/CQE/EbozdNI3+Fyvq7sd4O/5EHyFpZ9mMwA7snSk+JzX8WJjNyXUJJAdB04t89/1O/w1cDnyilFU=",
-		// os.Getenv("CHANNEL_SECRET"),
-		// os.Getenv("CHANNEL_TOKEN"),
-	)
-
+	// db接続
+	db, err := mysql.OpenMySQL()
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
+	rd, err := myredis.OpenRedis()
+	if err != nil {
+		return
+	}
+<<<<<<< HEAD
 
 	router := gin.New()
 	router.Use(gin.Logger())
@@ -146,4 +130,9 @@ func main() {
 		}
 	})
 	router.Run(":" + port)
+=======
+	in := handler.InitDB{DB: db, RD: rd}
+	// linebothandleの呼び出し
+	in.Linebothandler()
+>>>>>>> origin/master
 }
