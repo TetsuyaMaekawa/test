@@ -22,6 +22,8 @@ func GormConnect() *gorm.DB {
 		log.Print(err)
 	}
 
+	db.DB().SetMaxIdleConns(3)
+	db.DB().SetMaxOpenConns(3)
 	db.LogMode(true)
 	return db
 }

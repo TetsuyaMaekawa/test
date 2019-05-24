@@ -1,22 +1,38 @@
 package main
 
 import (
-	"github.com/heroku/test/dbaccess/myredis"
-	"github.com/heroku/test/dbaccess/mysql"
-	"github.com/heroku/test/handler"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/heroku/go-getting-started/dbaccess/mysql"
+	"github.com/heroku/go-getting-started/dbaccess/redis"
+	_ "github.com/heroku/x/hmetrics/onload"
+
+	// SDK追加
+	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 func main() {
-	// db接続
-	db, err := mysql.OpenMySQL()
-	if err != nil {
-		return
+	port := os.Getenv("PORT")
+
+	port = "80"
+	if port == "" {
+		log.Fatal("$PORT must be set")
 	}
-	rd, err := myredis.OpenRedis()
+
+	// LINE bot instanceの作成
+	bot, err := linebot.New(
+		"0189c809a76170e6c965b62ac5c9f670",
+		"hJ5OAGDvemzFZidHYjg1Ihr5SoHs9eqsgUuok/LoW4uXzKD3lEZpqyqDMKti8Q/bp0rb4aVW2zsjFroGMoi5xTZqdWVrGy/CQE/EbozdNI3+Fyvq7sd4O/5EHyFpZ9mMwA7snSk+JzX8WJjNyXUJJAdB04t89/1O/w1cDnyilFU=",
+		// os.Getenv("CHANNEL_SECRET"),
+		// os.Getenv("CHANNEL_TOKEN"),
+	)
+
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
-<<<<<<< HEAD
 
 	router := gin.New()
 	router.Use(gin.Logger())
@@ -50,7 +66,6 @@ func main() {
 			}
 			// ポストバックイベントの場合
 			if event.Type == linebot.EventTypePostback {
-<<<<<<< HEAD
 				// redisPool := redis.NewPool()
 				redisKey := "key1"
 				redisValue := "value1"
@@ -62,7 +77,7 @@ func main() {
 				// ia := ImagemapArea{520, 0, 520, 1040}
 				// if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewImagemapMessage("https://rootship.co.jp/images/logo.png",
 				// 	"this is a imagemap",
-				// 	linebot.ImagemapBaseSize(ibs,
+				// 	linebot.ImagemapBaseSize(ibs),
 				// 	linebot.NewMessageImagemapAction("test", linebot.ImagemapArea((ia))),
 				// )).Do(); err != nil {
 				// 	log.Print(err)
@@ -77,11 +92,6 @@ func main() {
 				)).Do(); err != nil {
 					log.Print(err)
 				}
-=======
-				// redisに接続
-				redisConn := redis.RedisConnection()
-				redis.RedisSet("key1", "value1", 30, redisConn)
->>>>>>> parent of 8b09e7a... pool
 			}
 			// メッセージイベントの場合
 			if event.Type == linebot.EventTypeMessage {
@@ -130,9 +140,18 @@ func main() {
 		}
 	})
 	router.Run(":" + port)
-=======
-	in := handler.InitDB{DB: db, RD: rd}
-	// linebothandleの呼び出し
-	in.Linebothandler()
->>>>>>> origin/master
 }
+
+// // ImagemapBaseSize ...
+// type ImagemapBaseSize struct {
+// 	Width  int "json:\"width\""
+// 	Height int "json:\"height\""
+// }
+
+// // ImagemapArea ...
+// type ImagemapArea struct {
+// 	X      int "json:\"x\""
+// 	Y      int "json:\"y\""
+// 	Width  int "json:\"width\""
+// 	Height int "json:\"height\""
+// }
