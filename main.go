@@ -77,7 +77,7 @@ func main() {
 				// ia := ImagemapArea{520, 0, 520, 1040}
 				// if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewImagemapMessage("https://rootship.co.jp/images/logo.png",
 				// 	"this is a imagemap",
-				// 	linebot.ImagemapBaseSize(ibs),
+				// 	linebot.ImagemapBaseSize(ibs,
 				// 	linebot.NewMessageImagemapAction("test", linebot.ImagemapArea((ia))),
 				// )).Do(); err != nil {
 				// 	log.Print(err)
